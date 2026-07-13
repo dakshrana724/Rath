@@ -18,14 +18,14 @@ app.get('/', (req, res) => {
   res.send('FixMyRide API is running...');
 });
 
-// Add this line to mount the auth routes!
-app.use('/api/auth', require('./routes/authRoutes'));
 
-// ... (existing code) ...
+// app.use('/api/auth', require('./routes/authRoutes'));
+
 
 // Mount routes
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/bookings', require('./routes/bookingRoutes')); // Add this line!
+app.use('/api/bookings', require('./routes/bookingRoutes')); 
+app.use('/api/mechanics', require('./routes/mechanicRoutes'));
 
 
 
