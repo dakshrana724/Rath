@@ -53,3 +53,31 @@ exports.getMyBookings = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+// @desc    Update booking status (Simulates mechanic action)
+// @route   PUT /api/bookings/:id/status
+// @access  Public (for testing MVP)
+exports.updateBookingStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    
+    // Find the booking and update its status
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true } // Return the updated document
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // 🔥 THE MAGIC: Broadcast the updated booking to the React frontend!
+    req.app.get('io').emit('bookingStatusUpdated', booking);
+
+    res.status(200).json(booking);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
