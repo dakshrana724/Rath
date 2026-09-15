@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  mechanic: { type: mongoose.Schema.Types.ObjectId, ref: 'Mechanic' }, // Assigned after matching
+  // 🔥 Only one reference to the user, and one for the mechanic!
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  mechanicId: { type: mongoose.Schema.Types.ObjectId, ref: 'Mechanic' },
   
   // Vehicle & Issue Details
   vehicleDetails: {
@@ -10,14 +11,14 @@ const bookingSchema = new mongoose.Schema({
     model: String,
     registrationNumber: String
   },
-  issueCategory: { type: String, required: true }, // e.g., 'Engine Repair'
+  issueCategory: { type: String, required: true },
   repairNotes: { type: String },
   
   // Service Logistics
   serviceMode: { type: String, enum: ['Doorstep', 'Garage'], required: true },
   location: {
     address: String,
-    coordinates: [Number] // For doorstep mapping
+    coordinates: [Number] 
   },
   scheduledFor: { type: Date, required: true },
   

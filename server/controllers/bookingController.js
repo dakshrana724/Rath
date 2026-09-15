@@ -1,52 +1,38 @@
 const Booking = require('../models/Booking');
 
-// @desc    Create a new repair booking
+// @desc    Create a new booking
 // @route   POST /api/bookings
-// @access  Private (Customer only)
 exports.createBooking = async (req, res) => {
   try {
-    const { 
-      vehicleDetails, 
-      issueCategory, 
-      serviceMode, 
-      location, 
-      scheduledFor, 
-      repairNotes 
-    } = req.body;
-
-    // Optional: Add a quick check to ensure only Customers can book
-    if (req.user.role !== 'Customer') {
-      return res.status(403).json({ message: 'Only customers can create bookings' });
-    }
+    const { vehicleDetails, issueCategory, serviceMode, scheduledFor, location, mechanicId } = req.body;
+    const extractedUserId = req.user._id.toString();
 
     const booking = await Booking.create({
-      customer: req.user._id, // Tied to the logged-in user!
+      user: extractedUserId,
       vehicleDetails,
       issueCategory,
       serviceMode,
-      location,
       scheduledFor,
-      repairNotes,
+      location,
+      mechanicId, 
       status: 'Pending'
     });
 
     res.status(201).json(booking);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('🛑 BOOKING CREATION ERROR:', error); 
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
-// ... existing imports and createBooking function ...
-
 // @desc    Get logged in user's bookings
 // @route   GET /api/bookings/mybookings
-// @access  Private (Customer only)
 exports.getMyBookings = async (req, res) => {
   try {
-    // Find all bookings where the customer ID matches the logged-in user's ID
-    const bookings = await Booking.find({ customer: req.user._id })
-      .populate('mechanic', 'name phone averageRating') // Grabs mechanic details if assigned later
-      .sort({ createdAt: -1 }); // Sorts by newest first
+    // 🔥 Updated 'customer' to 'user' to match the new clean schema!
+    const bookings = await Booking.find({ user: req.user._id })
+      .populate('mechanicId', 'name phone averageRating') 
+      .sort({ createdAt: -1 }); 
 
     res.status(200).json(bookings);
   } catch (error) {
@@ -54,30 +40,39 @@ exports.getMyBookings = async (req, res) => {
   }
 };
 
-
 // @desc    Update booking status (Simulates mechanic action)
 // @route   PUT /api/bookings/:id/status
-// @access  Public (for testing MVP)
 exports.updateBookingStatus = async (req, res) => {
   try {
     const { status } = req.body;
     
-    // Find the booking and update its status
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
       { status },
-      { new: true } // Return the updated document
+      { new: true } 
     );
 
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // 🔥 THE MAGIC: Broadcast the updated booking to the React frontend!
     req.app.get('io').emit('bookingStatusUpdated', booking);
-
     res.status(200).json(booking);
   } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+// @desc    Get bookings assigned to a specific mechanic
+// @route   GET /api/bookings/mechanic
+exports.getMechanicBookings = async (req, res) => {
+  try {
+    console.log("🛑 DIAGNOSTIC: Mechanic fetching jobs! Mechanic ID:", req.user._id);
+    const bookings = await Booking.find({ mechanicId: req.user._id }).sort({ createdAt: -1 });
+    console.log(`🛑 DIAGNOSTIC: Found ${bookings.length} jobs for this mechanic.`);
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.error('🛑 DIAGNOSTIC ERROR:', error);
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };

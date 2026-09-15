@@ -2,35 +2,38 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Mechanic = require('../models/Mechanic');
 
-const protect = async (req, res, next) => {
+exports.protect = async (req, res, next) => {
   let token;
 
-  // Check if the request header contains a Bearer token
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // Extract the token string
+      // 1. Get token from header
       token = req.headers.authorization.split(' ')[1];
 
-      // Decode and verify the token using your secret key
+      // 2. Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Check both collections to attach the correct user object to the request
-      let account = await User.findById(decoded.id).select('-password');
-      if (!account) {
-        account = await Mechanic.findById(decoded.id).select('-password');
+      // 3. 🔥 THE FIX: Check the role and search the correct database!
+      if (decoded.role === 'Mechanic') {
+        req.user = await Mechanic.findById(decoded.id).select('-password');
+      } else {
+        req.user = await User.findById(decoded.id).select('-password');
       }
 
-      // Attach the user to the request object so the next route can use it
-      req.user = account;
-      next(); // Move to the actual route logic
+      if (!req.user) {
+         return res.status(401).json({ message: 'User not found' });
+      }
+
+      next();
     } catch (error) {
+      console.error("🛑 AUTH MIDDLEWARE ERROR:", error);
       res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token provided' });
+    res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 
-module.exports = { protect };
+//  

@@ -10,9 +10,12 @@ const generateToken = (id, role) => {
 
 // @desc    Register a new user or mechanic
 // @route   POST /api/auth/register
+// @desc    Register a new user or mechanic
+// @route   POST /api/auth/register
 exports.register = async (req, res) => {
   try {
-    const { name, email, phone, password, role } = req.body;
+    // 🔥 FIX 1: Extract location and specialties from the request
+    const { name, email, phone, password, role, location, specialties } = req.body;
 
     // Check if user exists in either collection
     const userExists = await User.findOne({ email });
@@ -35,6 +38,9 @@ exports.register = async (req, res) => {
         email,
         phone,
         password: hashedPassword,
+        
+        location,
+        specialties
       });
     } else {
       newUser = await User.create({
