@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom'; 
 
 const BookingWizard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -13,12 +15,25 @@ const BookingWizard = () => {
   const [selectedMechanic, setSelectedMechanic] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   
+  // const [formData, setFormData] = useState({
+  //   make: '',
+  //   model: '',
+  //   year: '',
+  //   registrationNumber: '',
+  //   issueCategory: 'General Service',
+  //   serviceMode: 'Doorstep',
+  //   scheduledFor: ''
+  // });
+
+  const preSelectedService = location.state?.selectedService || 'General Service';
+
+  // 4. Update your initial formData state to use it!
   const [formData, setFormData] = useState({
     make: '',
     model: '',
     year: '',
     registrationNumber: '',
-    issueCategory: 'General Service',
+    issueCategory: preSelectedService, 
     serviceMode: 'Doorstep',
     scheduledFor: ''
   });

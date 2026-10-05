@@ -18,27 +18,21 @@ router.put('/:id/status', protect, async (req, res) => {
     const bookingId = req.params.id;
     const { status } = req.body; 
 
-    // 1. Update the document in MongoDB
     const updatedBooking = await Booking.findByIdAndUpdate(
       bookingId,
       { status: status },
       { new: true } 
-    ).populate('user', 'name email'); // Optional but helpful
+    ).populate('user', 'name email'); 
 
     if (!updatedBooking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // 2. The Real-Time Socket.io Trigger!
-    // This grabs the io instance from your server.js file
     const io = req.app.get('io');
     
     if (io) {
-      // Broadcast the update to the frontend
       io.emit('bookingStatusUpdated', updatedBooking);
     }
-
-    // 3. Send the response back to the Mechanic's Axios request
     res.status(200).json(updatedBooking);
 
   } catch (error) {
