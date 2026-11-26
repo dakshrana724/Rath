@@ -4,6 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 const LandingPage = () => {
   const navigate = useNavigate();
 
+  const token = localStorage.getItem('userToken');
+  const userData = JSON.parse(localStorage.getItem('userData'));
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     
@@ -84,14 +87,36 @@ const LandingPage = () => {
             </button>
           </div>  
 
-          <div className="flex gap-4">
+          {/* <div className="flex gap-4">
             <Link to="/login" className="px-6 py-2 border border-white/30 rounded-full text-white font-medium hover:bg-white/10 transition-colors text-sm flex items-center">
               Login
             </Link>
             <Link to="/register" className="px-6 py-2 bg-[#FF7900] text-white font-medium rounded-full hover:bg-[#e66d00] transition-colors shadow-lg text-sm flex items-center">
               Sign Up
             </Link>
-          </div>
+          </div> */}
+
+
+          {/* Replace your current <div className="flex gap-4"> block in the nav with this: */}
+  <div className="flex gap-4">
+    {token ? (
+      <Link 
+       to={userData?.role === 'Mechanic' ? "/mechanic-dashboard" : "/dashboard"} 
+       className="px-6 py-2 bg-[#FF7900] text-white font-medium rounded-full hover:bg-[#e66d00] transition-colors shadow-lg text-sm flex items-center"
+      >
+        Go to Dashboard
+     </Link>
+    ) : (
+     <>
+       <Link to="/login" className="px-6 py-2 border border-white/30 rounded-full text-white font-medium hover:bg-white/10 transition-colors text-sm flex items-center">
+         Login
+       </Link>
+        <Link to="/register" className="px-6 py-2 bg-[#FF7900] text-white font-medium rounded-full hover:bg-[#e66d00] transition-colors shadow-lg text-sm flex items-center">
+          Sign Up
+        </Link>
+      </>
+   )}
+  </div>
         </nav>
 
         {/* Hero Content */}

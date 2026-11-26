@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client'; // 1. Import Socket.io client!
 
@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const userData = localStorage.getItem('userData');
@@ -77,18 +78,16 @@ const Dashboard = () => {
     }
   };
 
+  // --- Helper function for active navbar link styling ---
+  const getNavLinkClass = (path) => {
+    return location.pathname === path
+      ? 'text-[#1E5EFF] font-bold border-b-2 border-[#1E5EFF] pb-1 transition'
+      : 'text-gray-600 font-medium hover:text-[#1E5EFF] pb-1 transition';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <nav className="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-[#1E5EFF]">FixMyRide Dashboard</h2>
-        <div className="flex items-center gap-6">
-          <div className="text-sm">
-            <span className="text-gray-500">Logged in as: </span>
-            <span className="font-bold text-gray-900 capitalize">{user.name}</span>
-          </div>
-          <button onClick={handleLogout} className="px-4 py-2 text-sm text-red-600 font-bold bg-red-50 rounded-lg hover:bg-red-100 transition">Logout</button>
-        </div>
-      </nav>
+      
 
       <main className="max-w-5xl mx-auto px-8 py-12">
         <div className="flex justify-between items-center mb-8">

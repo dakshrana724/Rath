@@ -83,18 +83,7 @@ const MechanicDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
-      <nav className="bg-slate-800 shadow-md px-8 py-4 flex justify-between items-center border-b border-slate-700">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#FF7900] rounded-md flex items-center justify-center text-white font-bold">👨‍🔧</div>
-          <h2 className="text-xl font-bold text-white">Mechanic Portal</h2>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="text-sm text-slate-400">
-            Welcome, <span className="font-bold text-white capitalize">{user.name}</span>
-          </div>
-          <button onClick={handleLogout} className="px-4 py-2 text-sm text-red-400 font-bold bg-slate-700 rounded-lg hover:bg-slate-600 transition">Logout</button>
-        </div>
-      </nav>
+      
 
       <main className="max-w-5xl mx-auto px-8 py-12">
         <h1 className="text-3xl font-extrabold text-white mb-8">Assigned Jobs</h1>
